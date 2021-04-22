@@ -3,6 +3,8 @@ package core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import model.Database;
+
 public class QueryManager {
 
 	private Database database;

@@ -1,9 +1,8 @@
-package model;
+package core;
 
 import java.util.Scanner;
 
-import core.Database;
-import core.QueryManager;
+import model.Database;
 
 public class Menu {
 
