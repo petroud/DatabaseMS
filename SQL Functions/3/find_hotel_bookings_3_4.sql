@@ -19,3 +19,5 @@ LANGUAGE "plpgsql";
 --Uncomment and select the query below to test the function after it has been created
 
 --SELECT find_hotel_bookings_3_4(15);
+
+--function checked

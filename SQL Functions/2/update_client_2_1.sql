@@ -23,3 +23,5 @@ LANGUAGE "plpgsql";
 --Uncomment and select the query below to test the function after it has been created
 
 --SELECT * FROM update_client_2_1('1905133426','ANTONIS','PAPADOPOULOS','M','1967-04-23','STADIOU STR','ATHENS','GREECE','VISA','5332 5533 5444 4444','A PAPADOPOULOS','2023-09-04')
+
+--function checked

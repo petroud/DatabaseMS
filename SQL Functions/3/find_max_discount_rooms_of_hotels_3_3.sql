@@ -23,3 +23,5 @@ LANGUAGE "plpgsql";
 --Uncomment and select the query below to test the function after it has been created
 
 --SELECT * FROM find_max_discount_rooms_of_hotels_3_3();
+
+--function checked

@@ -27,3 +27,5 @@ LANGUAGE "plpgsql";
 --Uncomment and select the query below to test the function after it has been created
 
 --SELECT * FROM find_hotel_amenities_3_2('Be','4');
+
+--function checked

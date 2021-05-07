@@ -14,3 +14,5 @@ LANGUAGE "plpgsql";
 --Test Query
 --Uncomment and select the query below to test the function after it has been created
 --SELECT * FROM find_discounts_3_1();
+
+--function checked

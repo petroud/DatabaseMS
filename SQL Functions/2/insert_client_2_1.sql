@@ -26,4 +26,4 @@ LANGUAGE "plpgsql";
 --select * from insert_client_2_1('ABCDEFGH','ANTONIS','PAPADOPOULOS','M','1967-04-23','STADIOU STR','ATHENS','GREECE','VISA','5332 5533 5444 4444','A PAPADOPOULOS','2023-09-04')
 
 
-
+--function checked
