@@ -93,7 +93,7 @@
     calculate_cheapest_rate_for_country_4_3(countryname varchar) 
 
     --- 4.4 ---
-
+    calculate_best_hotels_byincome_4_4()
 
     --- 4.5 ---
     calculate_completeness_4_5(hotelid integer,yearArg integer)
