@@ -9,7 +9,7 @@ BEGIN
 	FROM (SELECT * FROM room
 	INNER JOIN (SELECT * FROM hotelbooking INNER JOIN roombooking ON hotelbooking.idhotelbooking = roombooking."hotelbookingID") AS bookings
 	ON room."idRoom" = bookings."roomID" WHERE room."idHotel" = hotelIDarg) as hbookings
-	ORDER BY idhotelbooking
+	ORDER BY idhotelbooking;
 	
 	END;
 $$
@@ -18,6 +18,6 @@ LANGUAGE "plpgsql";
 --Test Query
 --Uncomment and select the query below to test the function after it has been created
 
---SELECT find_hotel_bookings_3_4(15);
+--SELECT * from find_hotel_bookings_3_4(15);
 
 --function checked

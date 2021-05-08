@@ -21,6 +21,6 @@ LANGUAGE "plpgsql";
 
 --Test Query
 --Uncomment and select the query below to test the function after it has been created
---SELECT * FROM calculate_avg_4_2('Cabana')
+--SELECT * FROM calculate_avg_age_4_2('Cabana')
 
 --function checked
