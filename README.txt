@@ -67,6 +67,9 @@
     update_client_2_1(docClient varchar, fnamee varchar, lnamee varchar, sexx character, dateofbirthh date, addresss varchar, cityy varchar, countryy varchar, cardtypee varchar, cardnumberr varchar, holderr varchar, expirationn date)
 
 
+    --- 2.2 ---
+    generate_bookings_2_2(idhotel integer, stardate date, enddate date, numofbookings integer)
+
 
     --- 3.1 ---
     find_discounts_3_1()
@@ -106,6 +109,9 @@
     --- 5.0 ---
     Τα headers των συναρτήσεων για τα triggers βρίσκονται εντός της βάσης σε περίπτωση που χρειαστούν
 
+    --- 6.1 ---
+    view_available_rooms_ofhotels_6_1()  
+
 
 
 
@@ -125,6 +131,10 @@
     find_hotel_manager(args) : Εύρεση του διευθυντή ενός ξενοδοχείου
 
     find_hotel_ofbookings(args) :  Εύρεση του ξενοδοχείο στο οποίο ανήκει μια κράτηση
+
+    find_roombookings_of_hotel(args) : Eύρεση των κρατήσεων των δωματίων ενός ξενοδοχείου
+
+    find_rate_of_room(args) :  Eύρεση της τελικής τιμής (μαζί με discount) ενός δωματίο ενός ξενοδοχείου.
 
     generate_manages() : Ανάθεση των κράτησεων κάθε ξενοδοχείου σε τυχαίο εργαζόμενο του
 
