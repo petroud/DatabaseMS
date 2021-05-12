@@ -107,6 +107,16 @@ $BODY$;
 ALTER FUNCTION public.update_payment_changes_5_3()
     OWNER TO postgres;
 
+
+CREATE TRIGGER updater_payment_changes_5_3
+    AFTER DELETE OR UPDATE 
+    ON public.roombooking
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_payment_changes_5_3();
+
+
+
+
     
 
 
