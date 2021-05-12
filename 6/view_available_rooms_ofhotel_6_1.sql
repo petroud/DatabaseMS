@@ -8,3 +8,8 @@ SELECT DISTINCT ON (dd."idRoom") dd."idRoom" as "Room ID","checkin" as "Availabl
 
 WHERE (NOT NOW()::date BETWEEN checkin AND checkout) OR (checkin IS NULL)
 ORDER BY "idRoom","checkin" ASC
+
+
+--Test Query
+--Uncomment and select the query below to test the function after it has been created
+--SELECT * FROM view_available_rooms_of_hotels_6_1()
