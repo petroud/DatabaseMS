@@ -8,9 +8,9 @@ BEGIN
 	num_of_rooms = COUNT(*) FROM "room" WHERE "idHotel"=hotelid;
 
 	RETURN QUERY
-	SELECT CONCAT((TO_CHAR(TO_DATE((select extract(month from "checkin"))::text, 'MM'), 'Month')),yearArg) AS "Month", 
+	SELECT CONCAT((TO_CHAR(TO_DATE((select extract(month from "checkin"))::text, 'MM'), 'Month')),' ',yearArg) AS "Month", 
 	
-		SUM(checkout-checkin)*100/(DATE_PART('days',DATE_TRUNC('month',CAST(CONCAT('2021-',LPAD((select EXTRACT(MONTH FROM "checkin"))::text,2,'0'),'-05') AS date)) + '1 MONTH'::INTERVAL - '1 DAY'::INTERVAL)*num_of_rooms) AS "Completeness Percentage" 
+		SUM(checkout-checkin)*100/(DATE_PART('days',DATE_TRUNC('month',CAST(CONCAT(yearArg,'-',LPAD((select EXTRACT(MONTH FROM "checkin"))::text,2,'0'),'-05') AS date)) + '1 MONTH'::INTERVAL - '1 DAY'::INTERVAL)*num_of_rooms) AS "Completeness Percentage" 
 	
 	FROM find_roombookings_of_hotel(hotelid) 
 	WHERE ((SELECT EXTRACT(YEAR FROM "checkin")) = yearArg)
