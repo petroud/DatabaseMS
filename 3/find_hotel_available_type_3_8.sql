@@ -1,39 +1,22 @@
 CREATE OR REPLACE FUNCTION find_hotel_available_type_3_8() RETURNS TABLE("Hotel Name" varchar, "Hotel ID" integer)
 AS
 $$
-DECLARE 
-	numofhotels integer;
-	hotelid integer;
-	hotelname varchar;
 BEGIN
-DROP TABLE IF EXISTS hotelsToShow;
-CREATE TEMP TABLE hotelsToShow("Hotel Name" varchar, "Hotel ID" integer);
 
-numOfHotels = COUNT(*) FROM hotel;
-
-FOR i in 1..numOfHotels-1 LOOP
-	hotelid = "idHotel" FROM hotel LIMIT 1 OFFSET i;
-	hotelname = "name" FROM hotel LIMIT 1 OFFSET i;
-	
-	IF((SELECT COUNT(*) FROM
+	RETURN QUERY
+	SELECT "name","idHotel" FROM "hotel" WHERE 
+	   (SELECT COUNT(*) FROM
 			(SELECT hotelrooms."roomtype",CASE
                    				WHEN "numofbookedrooms" IS NULL THEN numofhotelrooms
                     			ELSE (numofhotelrooms-numofbookedrooms)
                				    END AS "availrooms" 
-			FROM((SELECT COUNT(*) AS "numofhotelrooms", roomtype FROM get_hotel_rooms(hotelid)
+			FROM((SELECT COUNT(*) AS "numofhotelrooms", roomtype FROM get_hotel_rooms("idHotel")
 			group by roomtype) as hotelrooms
 			LEFT JOIN
-			(SELECT COUNT(*) as numofbookedrooms, roomtype FROM find_detailedbookings_of_hotel(hotelid) WHERE checkin<(SELECT NOW()) AND checkout>(SELECT NOW())
+			(SELECT COUNT(*) as numofbookedrooms, roomtype FROM find_detailedbookings_of_hotel("idHotel") WHERE checkin<(SELECT NOW()) AND checkout>(SELECT NOW())
 			group by roomtype) as hotelbooks
 			ON hotelrooms.roomtype = hotelbooks.roomtype)) as dd
-		WHERE dd."availrooms" = 0) = 0) THEN
-	   		INSERT INTO hotelsToShow VALUES(hotelname,hotelid);
-   END IF;
-END LOOP;
-
-RETURN QUERY 
-SELECT * FROM hotelsToShow;
-
+		WHERE dd."availrooms" = 0)=0; 
 END;
 $$
 LANGUAGE "plpgsql";
