@@ -6,7 +6,8 @@ CREATE FUNCTION public.overlap_check_5_3()
 AS $BODY$
 DECLARE
 	numOfbookings integer;
-	dateOfOtherBooking date;
+	dateOfOtherBookingIn date;
+	dateOfOtherBookingOut date;
 	dateOfUpdatedBooking date;
 BEGIN
 
@@ -14,29 +15,25 @@ numOfbookings =  COUNT(*) FROM "roombooking" where "roomID" = OLD."roomID";
 
 IF(numOfbookings>1) THEN
 	
-	FOR i in 1..numOfBookings LOOP
+	FOR i in 1..numOfBookings-1 LOOP
+		dateOfOtherBookingIn = "checkin" FROM "roombooking" where "roomID" = OLD."roomID" AND OLD."hotelbookingID"=NEW."hotelbookingID" ORDER BY "hotelbookingID" LIMIT 1 OFFSET i;
+	    dateOfOtherBookingOut = "checkout" FROM "roombooking" where "roomID" = OLD."roomID" AND OLD."hotelbookingID"=NEW."hotelbookingID" ORDER BY "hotelbookingID" LIMIT 1 OFFSET i;
+
+		dateOfUpdatedBooking = NEW."checkout" FROM "roombooking" where "roomID" = NEW."roomID" AND "hotelbookingID"=NEW."hotelbookingID";
 		
-		dateOfOtherBooking = "checkin" FROM "roombooking" where "roomID" = OLD."roomID" AND NOT "hotelbookingID"=NEW."hotelbookingID" ORDER BY "hotelbookingID" LIMIT 1 OFFSET i;
-		dateOfUpdatedBooking = "checkout" FROM "roombooking" where "roomID" = NEW."roomID" AND "hotelbookingID"=NEW."hotelbookingID";
-		
-		IF(dateOfOtherBooking < dateOfUpdatedBooking) THEN
-			RAISE NOTICE 'The room is not available for this checkout date! Next available date for checkout is on %', dateOfOtherBooking-1;
-			RETURN OLD;	
-		ELSE
-			RETURN NEW;
-		END IF;
-		
+		IF(dateOfOtherBookingIn < dateOfUpdatedBooking AND dateOfOtherBookingOut > dateOfUpdatedBooking) THEN
+			RAISE NOTICE 'The room is not available for this checkout date! Next available date for checkout right before the date you entered is on %', dateOfOtherBookingIn-1;
+			RETURN OLD;
+		END IF;	
 	END LOOP;
 	
+	RETURN NEW;
 ELSE
 	RETURN NEW;
 END IF;
 
 END;
 $BODY$;
-
-ALTER FUNCTION public.overlap_check_5_3()
-    OWNER TO postgres;
 
 
 CREATE TRIGGER overlap_checker_5_3
