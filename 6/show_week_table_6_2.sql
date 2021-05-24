@@ -1,6 +1,12 @@
-CREATE OR REPLACE FUNCTION show_week_table_6_2(idhotel integer) RETURNS TABLE("Day Of Week" weekday_type, "Room Number" integer,"Rate" real,"Discount" real, "Client Document" varchar, "Client ID" integer)
-AS
-$$
+CREATE OR REPLACE FUNCTION public.show_week_table_6_2(
+	idhotel integer)
+    RETURNS TABLE("Day Of Week" weekday_type, "Room Number" integer, "Rate" real, "Discount" real, "Client Document" character varying, "Client ID" integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
 DECLARE
 	startdate date;
 	enddate date;
@@ -32,23 +38,28 @@ CREATE UNLOGGED TABLE temptable_2(idr integer,idnr integer, rt real, ds real, id
 	
 	RETURN QUERY
 	SELECT * FROM temptable;
+
+    DROP TABLE IF EXISTS temptable;
+    DROP TABLE IF EXISTS temptable_2;
 END;
-$$
-LANGUAGE "plpgsql";
+$BODY$;
 
 
 
 
+CREATE OR REPLACE FUNCTION public.get_week_bookings_6_2(
+	sdate date,
+	edate date,
+	idhtl integer)
+    RETURNS TABLE(idroom integer, number integer, rate real, discount real, idhotel integer, docclient character varying, clienti integer) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
 
-
-
-CREATE OR REPLACE FUNCTION get_week_bookings_6_2(sdate date, edate date,idhtl integer) RETURNS TABLE(idroom integer, number integer, rate real, discount real, idhotel integer, docclient varchar, clienti integer)
-AS
-$$
+AS $BODY$
 BEGIN
-
 RETURN QUERY
-
 SELECT hrooms.idroom,hrooms.number,roomrate.rate,roomrate.discount,hrooms.idhotel,CASE
                    							 WHEN "clientid" IS NULL THEN '0'
                     						 ELSE "documentclient"
@@ -63,10 +74,8 @@ INNER JOIN "roomrate" on "roomrate"."roomtype" = "hrooms"."roomtype" AND "roomra
 LEFT JOIN "client" ON "client"."idClient" = clientid
 ORDER BY "idroom";
 
-
 END;
-$$
-LANGUAGE "plpgsql";
+$BODY$;
 
 
 
@@ -76,31 +85,6 @@ SELECT * FROM show_week_table_6_2(20);
 
 
 
-
-
-
-CREATE FUNCTION save_weektable_changes_6_2() RETURNS TRIGGER
-AS
-$$
-BEGIN
-	--Rate or Discount changed
-	IF(OLD."Rate"<>NEW."Rate" OR OLD."Discount"<>NEW."Discount") THEN
-		UPDATE roomrate SET rate = (NEW."Rate") , discount = (NEW."Discount") WHERE
-		"idHotel" = 20 AND roomtype = (SELECT roomtype FROM room WHERE number=NEW."Room Number");
-	END IF;
-	
-	--Old client was null
-	IF(OLD."Client Document" <> NEW."Client Document" AND (OLD."Client Document"='0' OR OLD."Client Document" IS NULL)) THEN
-		UPDATE "room" SET vacant=1 WHERE number = NEW."Room Number";
-	--New client is null
-	ELSIF(NEW."Client Document" IS NULL OR NEW."Client Document"='0') THEN
-		UPDATE "room" SET vacant=0 WHERE number = NEW."Room Number";
-	END IF;
-	
-	RETURN NEW;
-END;
-$$
-LANGUAGE "plpgsql";
 
 
 CREATE TRIGGER weektable_updater_6_2
@@ -122,29 +106,33 @@ EXECUTE PROCEDURE save_weektable_changes_6_2();
 
 
 
-CREATE OR REPLACE FUNCTION save_weektable_changes_6_2() RETURNS TRIGGER
-AS
-$$
+CREATE FUNCTION public.save_weektable_changes_6_2()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+        idhotelb integer;
 BEGIN
 	--Rate or Discount changed
 	IF(OLD."Rate"<>NEW."Rate" OR OLD."Discount"<>NEW."Discount") THEN
 		UPDATE roomrate SET rate = (NEW."Rate") , discount = (NEW."Discount") WHERE
 		"idHotel" = 20 AND roomtype = (SELECT roomtype FROM room WHERE number=NEW."Room Number");
 	END IF;
-	
+
 	--Old client was null
 	IF(OLD."Client Document" <> NEW."Client Document" AND (OLD."Client Document"='0' OR OLD."Client Document" IS NULL)) THEN
-		INSERT INTO hotelbooking(SELECT nextval('idhbooking'),NULL,'9999-12-31'::date,null,(SELECT "idClient" FROM client WHERE "documentclient" = NEW."Client Document"),false,null,null);
-		INSERT INTO roombooking(SELECT currval('idhbooking'),(SELECT "idRoom" FROM "room" WHERE number = NEW."Room Number"),(SELECT "idClient" FROM client WHERE "documentclient" = NEW."Client Document"),(SELECT startd FROM find_next_week())+2,(SELECT startd FROM find_next_week())-2,null);		
-		UPDATE "room" SET vacant=1 WHERE number = NEW."Room Number";		
+		INSERT INTO hotelbooking(SELECT nextval('idhbooking'),NOW(),'9999-12-31'::date,null,(SELECT "idClient" FROM client WHERE "documentclient" = NEW."Client Document"),false,null,null);
+		INSERT INTO roombooking(SELECT currval('idhbooking'),(SELECT "idRoom" FROM "room" WHERE number = NEW."Room Number"),(SELECT "idClient" FROM client WHERE "documentclient" = NEW."Client Document"),(SELECT startd FROM find_next_week())+2,(SELECT endd FROM find_next_week())-2,null);
+		UPDATE "room" SET vacant=1 WHERE number = NEW."Room Number";
 	--New client is null
 	ELSIF(NEW."Client Document" IS NULL OR NEW."Client Document"='0') THEN
-		DELETE FROM roombooking WHERE "hotelbookingID" = (SELECT DISTINCT idhotelbooking FROM hotelbooking WHERE "bookedbyclientID" = OLD."Client Document" AND "cancellationdate"='9999-12-31') AND "roomID"=(SELECT "idRoom" FROM "room" WHERE number = OLD."Room Number");
-		DELETE FROM hotelbooking WHERE idhotelbooking = (SELECT DISTINCT idhotelbooking FROM hotelbooking WHERE "bookedbyclientID" = OLD."Client Document") AND "cancellationdate"='9999-12-31';
-		UPDATE "room" SET vacant=0 WHERE number = NEW."Room Number";
+	    idhotelb =  "hotelbookingID" FROM roombooking WHERE  "bookedforpersonID"=(SELECT "idClient" FROM client WHERE documentclient= OLD."Client Document" AND "roomID"=(SELECT "idRoom" FROM room WHERE number=OLD."Room Number"));
+	    DELETE FROM roombooking WHERE "bookedforpersonID"=(SELECT "idClient" FROM client WHERE documentclient= OLD."Client Document" AND "roomID"=(SELECT "idRoom" FROM room WHERE number=OLD."Room Number"));
+		UPDATE "room" SET vacant=0 WHERE number = OLD."Room Number";
 	END IF;
-	
+
 	RETURN NEW;
 END;
-$$
-LANGUAGE "plpgsql";
+$BODY$;

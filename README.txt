@@ -51,8 +51,6 @@
 4) Με σκοπό να δοκιμαστεί το trigger του 5.1 ερωτήματος επιλέχθηκαν τυχαία 2000 tuples του
    "hotelbooking" να γίνουν payed=TRUE
 
-5) Για κάθε hotelbooking υπάρχει ένα tuple στον πίνακα manages
-
 ------------------------------------------------------------------------------------------------
 
 
@@ -68,9 +66,6 @@
     delete_client_2_1(docClient varchar, lastname varchar, cardnumber varchar) 
     update_client_2_1(docClient varchar, fnamee varchar, lnamee varchar, sexx character, dateofbirthh date, addresss varchar, cityy varchar, countryy varchar, cardtypee varchar, cardnumberr varchar, holderr varchar, expirationn date)
 
-
-    --- 2.2 ---
-    generate_bookings_2_2(idhotel integer, stardate date, enddate date, numofbookings integer)
 
 
     --- 3.1 ---
@@ -111,9 +106,6 @@
     --- 5.0 ---
     Τα headers των συναρτήσεων για τα triggers βρίσκονται εντός της βάσης σε περίπτωση που χρειαστούν
 
-    --- 6.1 ---
-    view_available_rooms_ofhotels_6_1()  
-
 
 
 
@@ -136,7 +128,15 @@
 
     find_roombookings_of_hotel(args) : Eύρεση των κρατήσεων των δωματίων ενός ξενοδοχείου
 
-    find_rate_of_room(args) :  Eύρεση της τελικής τιμής (μαζί με discount) ενός δωματίο ενός ξενοδοχείου.
+    find_roombooking_hotel_period(args) : Εύρεση των κρατήσεων ενός ξενοδοχείου σε ένα συγκερκιμένο διάστημα
+
+    find_bookings_of_client(args) : Εύρεση των κρατήσεων ενός συγκεκριμένου πελάτη
+
+    find_available_rooms_of_hotel(args) : Εύρεση των διαθεσιμων δωματιών ενός ξενοδοχείου για ενα συγκεκριμενο χρονικο διαστημα
+
+    find_hotel_clients_prefix(args) : Εύρεση πελατών ενός ξενοδοχείου σύμφωνα με πρόθεμα επωνύμου
+
+    find_next_week() :  Εύρεση της πρώτης και της τελευταίας μέρας της επόμενης βδομάδας από την τρέχουσα
 
     generate_manages() : Ανάθεση των κράτησεων κάθε ξενοδοχείου σε τυχαίο εργαζόμενο του
 
@@ -155,6 +155,11 @@
     show_allclients() : Εμφάνιση όλων των πελατών της βάσης
 
     show_allemployees() : Εμφάνιση όλων των εργαζομένων της βάσης.
+
+    update_roombooking(args) : Ενημέρωση ενός roombooking 
+
+
+
 
 ------------------------------------------------------------------------------------------------
 

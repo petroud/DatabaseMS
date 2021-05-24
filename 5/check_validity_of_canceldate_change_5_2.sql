@@ -62,18 +62,15 @@ BEGIN
 		END IF;
 		   
 	ELSIF (TG_OP = 'DELETE') THEN
-		IF((SELECT CURRENT_DATE)<(SELECT find_cancel_date_of_booking(OLD."hotelbookingID"))) THEN
-		--If the booking cancellation date is not due
-			RETURN OLD;
-		ELSE
+		IF(SELECT CURRENT_DATE)>(SELECT find_cancel_date_of_booking(OLD."hotelbookingID")) THEN
+		--If the booking cancellation date IS due
 			RAISE EXCEPTION 'Because the cancellation date is due! Room booking cannot be deleted';
+		ELSE
+			RETURN OLD;
 		END IF;		      		   
 	END IF;
 END;
 $BODY$;
-
-ALTER FUNCTION public.check_validity_of_roombooking_changes_5_2()
-    OWNER TO postgres;
 
 
 CREATE TRIGGER validate_booking_date_changes_5_2
